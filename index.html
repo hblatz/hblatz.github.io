@@ -606,7 +606,7 @@
         // Start the app
         init();
     </script>
-    
+
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "firebase/app";
@@ -630,6 +630,49 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
+
+        // code to interact with Firebase.
+        // ... (Firebase initialization as shown above) ...
+
+        // Reference to the 'timeEntries' node in your database
+        const timeEntriesRef = ref(database, 'users/' + /* User ID (you might need Firebase Authentication later) */ 'hblatz/timeEntries');
+
+        // Function to save a new time entry
+        function saveTimeEntry(task, startTime, endTime, duration) {
+        push(timeEntriesRef, {
+            task: task,
+            startTime: startTime,
+            endTime: endTime,
+            duration: duration
+        });
+        }
+
+        // Function to load time entries (and listen for updates)
+        function loadTimeEntries() {
+        onValue(timeEntriesRef, (snapshot) => {
+            const data = snapshot.val();
+            // Process the data to update your table in the HTML
+            if (data) {
+            // Clear existing table rows
+            // Loop through the data object (it will be an object of objects with unique keys)
+            for (const entryId in data) {
+                const entry = data[entryId];
+                // Add a new row to your table with entry.task, entry.startTime, etc.
+            }
+            } else {
+            // No data yet
+            // Display a message or clear the table
+            }
+        });
+        }
+
+        // Call loadTimeEntries when your page loads
+        loadTimeEntries();
+
+        // Modify your existing functions (e.g., when a new entry is added) to call saveTimeEntry()
+        // instead of updating localStorage.
+
+
     </script>
 </body>
 </html>
