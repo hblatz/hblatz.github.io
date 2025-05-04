@@ -231,13 +231,13 @@
                         document.getElementById('projectName').value = '';
                         document.getElementById('projectDescription').value = '';
                         document.getElementById('projectCode').value = '';
-                        // No need to call displayProjects() here; onValue() will update it
+                        populateProjectDropdowns(); // Add this line here
                     } else {
                         alert("Failed to save project.");
                     }
                 });
         });
-
+        
         // **Project Display**
         function displayProjects(projects) { // Modified to accept projects as argument
             const container = document.getElementById('projectsList');
