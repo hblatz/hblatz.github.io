@@ -3,619 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Time Tracker</title>
+    <title>Time Tracking App</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 16px;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: sans-serif;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
+
+        .project-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
         }
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
+
+        .empty-message {
+            font-style: italic;
+            color: #888;
         }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 16px;
-        }
-        .tab.active {
-            border-bottom: 2px solid #4a89dc;
-            font-weight: bold;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .card {
-            background: #f7f7f7;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        button {
-            background: #4a89dc;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #3b78cc;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 16px;
         }
+
         th, td {
-            text-align: left;
+            border: 1px solid #ccc;
             padding: 8px;
-            border-bottom: 1px solid #ddd;
+            text-align: left;
         }
-        th {
-            background-color: #f2f2f2;
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
         }
+
         .task-item {
             display: flex;
             align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
+            margin-bottom: 5px;
         }
-        .task-item.completed {
-            background-color: #f9f9f9;
+
+        .task-checkbox {
+            margin-right: 10px;
+        }
+
+        .completed {
             text-decoration: line-through;
             color: #888;
-        }
-        .task-checkbox {
-            margin-right: 12px;
-            width: auto;
-        }
-        .project-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .delete-btn {
-            background: none;
-            color: #ff4d4d;
-            padding: 4px 8px;
-            float: right;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-        @media (min-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        .reminder-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-        }
-        .field-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-        @media (min-width: 600px) {
-            .field-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        .full-width {
-            grid-column: 1 / -1;
         }
     </style>
 </head>
 <body>
-    <h1>Simple Time Tracker</h1>
-    
-    <button id="enableNotifications" class="reminder-btn">🔔 Enable Hourly Reminders</button>
-    
-    <div class="tabs">
-        <button class="tab active" data-tab="logTime">⏱️ Log Time</button>
-        <button class="tab" data-tab="tasks">✅ Tasks</button>
-        <button class="tab" data-tab="projects">📁 Projects</button>
-    </div>
-    
-    <!-- Log Time Tab -->
-    <div id="logTime" class="tab-content active">
-        <div class="card">
-            <h2>Log Time</h2>
-            <div class="field-grid">
-                <div class="form-group">
-                    <label for="logDate">Date</label>
-                    <input type="date" id="logDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="logProject">Project</label>
-                    <select id="logProject" required>
-                        <option value="">Select a project</option>
-                    </select>
-                </div>
-                <div class="form-group full-width">
-                    <label for="logDescription">Description</label>
-                    <input type="text" id="logDescription" placeholder="What did you work on?">
-                </div>
-                <div class="form-group">
-                    <label for="logHours">Hours</label>
-                    <select id="logHours"></select>
-                </div>
-                <div class="form-group">
-                    <label for="logMinutes">Minutes</label>
-                    <select id="logMinutes">
-                        <option value="0">0</option>
-                        <option value="15" selected>15</option>
-                        <option value="30">30</option>
-                        <option value="45">45</option>
-                    </select>
-                </div>
-            </div>
-            <button id="saveTimeEntry">Log Time</button>
-        </div>
-        
-        <h2>Recent Time Entries</h2>
-        <div id="timeEntriesList">
-            <p class="empty-message">No time entries yet.</p>
-        </div>
-    </div>
-    
-    <!-- Tasks Tab -->
-    <div id="tasks" class="tab-content">
-        <div class="card">
-            <h2>Add Future Task</h2>
-            <div class="field-grid">
-                <div class="form-group">
-                    <label for="taskProject">Project</label>
-                    <select id="taskProject" required>
-                        <option value="">Select a project</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="taskDate">Due Date</label>
-                    <input type="date" id="taskDate">
-                </div>
-                <div class="form-group full-width">
-                    <label for="taskDescription">Task Description</label>
-                    <input type="text" id="taskDescription" placeholder="What needs to be done?" required>
-                </div>
-            </div>
-            <button id="saveTask">Add Task</button>
-        </div>
-        
-        <h2>Future Tasks</h2>
-        <div id="tasksList">
-            <p class="empty-message">No future tasks yet.</p>
-        </div>
-    </div>
-    
-    <!-- Projects Tab -->
-    <div id="projects" class="tab-content">
-        <div class="card">
-            <h2>Add New Project</h2>
-            <div class="form-group">
-                <label for="projectName">Project Name</label>
-                <input type="text" id="projectName" placeholder="Project name" required>
-            </div>
-            <div class="form-group">
-                <label for="projectDescription">Description</label>
-                <textarea id="projectDescription" rows="2" placeholder="Project description"></textarea>
-            </div>
-            <button id="saveProject">Add Project</button>
-        </div>
-        
-        <h2>Projects</h2>
-        <div id="projectsList" class="grid">
-            <p class="empty-message">No projects yet.</p>
-        </div>
+
+    <h1>Time Tracking App</h1>
+
+    <h2>Projects</h2>
+    <div id="projects">
+        <input type="text" id="projectName" placeholder="Project Name">
+        <input type="text" id="projectDescription" placeholder="Description">
+        <input type="text" id="projectCode" placeholder="Project Code">
+        <button id="saveProject">Save Project</button>
+        <div id="projectsList"></div>
     </div>
 
-    <script>
-        // Initialize data structures
-        let projects = JSON.parse(localStorage.getItem('projects')) || [
-            { id: 1, name: 'Project A', description: 'Description for Project A' },
-            { id: 2, name: 'Project B', description: 'Description for Project B' },
-            { id: 3, name: 'Project C', description: 'Description for Project C' },
-        ];
-        let timeEntries = JSON.parse(localStorage.getItem('timeEntries')) || [];
-        let futureTasks = JSON.parse(localStorage.getItem('futureTasks')) || [];
-        
-        // DOM elements
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const notificationBtn = document.getElementById('enableNotifications');
-        
-        // Tab functionality
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.dataset.tab;
-                
-                // Remove active class from all tabs and contents
-                tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                // Add active class to current tab and content
-                tab.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-        
-        // Populate hours dropdown
-        const hoursDropdown = document.getElementById('logHours');
-        for (let i = 0; i < 24; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = i;
-            if (i === 0) option.selected = true;
-            hoursDropdown.appendChild(option);
-        }
-        
-        // Set today's date as default
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('logDate').value = today;
-        document.getElementById('taskDate').value = today;
-        
-        // Populate project dropdowns
-        function populateProjectDropdowns() {
-            const projectSelects = [
-                document.getElementById('logProject'),
-                document.getElementById('taskProject')
-            ];
-            
-            projectSelects.forEach(select => {
-                // Clear existing options except the first one
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-                
-                // Add project options
-                projects.forEach(project => {
-                    const option = document.createElement('option');
-                    option.value = project.id;
-                    option.textContent = project.name;
-                    select.appendChild(option);
-                });
-            });
-        }
-        
-        // Display time entries
-        function displayTimeEntries() {
-            const container = document.getElementById('timeEntriesList');
-            
-            if (timeEntries.length === 0) {
-                container.innerHTML = '<p class="empty-message">No time entries yet.</p>';
-                return;
-            }
-            
-            // Sort entries by date (newest first)
-            const sortedEntries = [...timeEntries].sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            );
-            
-            // Create table
-            let html = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Project</th>
-                            <th>Description</th>
-                            <th>Time</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            sortedEntries.forEach(entry => {
-                const project = projects.find(p => p.id.toString() === entry.projectId.toString());
-                html += `
-                    <tr>
-                        <td>${entry.date}</td>
-                        <td>${project ? project.name : 'Unknown'}</td>
-                        <td>${entry.description}</td>
-                        <td>${entry.hours}h ${entry.minutes}m</td>
-                        <td>
-                            <button class="delete-btn" data-id="${entry.id}" data-type="entry">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            html += `
-                    </tbody>
-                </table>
-            `;
-            
-            container.innerHTML = html;
-            
-            // Add event listeners for delete buttons
-            container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', handleDelete);
-            });
-        }
-        
-        // Display tasks
-        function displayTasks() {
-            const container = document.getElementById('tasksList');
-            
-            if (futureTasks.length === 0) {
-                container.innerHTML = '<p class="empty-message">No future tasks yet.</p>';
-                return;
-            }
-            
-            // Sort tasks by due date
-            const sortedTasks = [...futureTasks].sort((a, b) => 
-                new Date(a.dueDate) - new Date(b.dueDate)
-            );
-            
-            let html = '';
-            
-            sortedTasks.forEach(task => {
-                const project = projects.find(p => p.id.toString() === task.projectId.toString());
-                html += `
-                    <div class="task-item ${task.completed ? 'completed' : ''}">
-                        <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
-                        <div>
-                            <div>${task.description}</div>
-                            <div style="font-size: 0.9em; color: #666;">
-                                ${project ? project.name : 'Unknown'} - Due: ${task.dueDate}
-                            </div>
-                        </div>
-                        <button class="delete-btn" data-id="${task.id}" data-type="task">Delete</button>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-            
-            // Add event listeners
-            container.querySelectorAll('.task-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', toggleTaskComplete);
-            });
-            
-            container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', handleDelete);
-            });
-        }
-        
-        // Display projects
-        function displayProjects() {
-            const container = document.getElementById('projectsList');
-            
-            if (projects.length === 0) {
-                container.innerHTML = '<p class="empty-message">No projects yet.</p>';
-                return;
-            }
-            
-            let html = '';
-            
-            projects.forEach(project => {
-                // Calculate total time for this project
-                const projectEntries = timeEntries.filter(
-                    entry => entry.projectId.toString() === project.id.toString()
-                );
-                const totalMinutes = projectEntries.reduce(
-                    (sum, entry) => sum + ((entry.hours * 60) + entry.minutes), 0
-                );
-                const hours = Math.floor(totalMinutes / 60);
-                const minutes = totalMinutes % 60;
-                
-                html += `
-                    <div class="project-card">
-                        <h3>${project.name}</h3>
-                        <p>${project.description}</p>
-                        <p><strong>Total time:</strong> ${hours}h ${minutes}m</p>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Save time entry
-        document.getElementById('saveTimeEntry').addEventListener('click', () => {
-            const projectId = document.getElementById('logProject').value;
-            if (!projectId) {
-                alert('Please select a project');
-                return;
-            }
-            
-            const newEntry = {
-                id: Date.now(),
-                date: document.getElementById('logDate').value,
-                projectId: projectId,
-                description: document.getElementById('logDescription').value,
-                hours: parseInt(document.getElementById('logHours').value),
-                minutes: parseInt(document.getElementById('logMinutes').value),
-            };
-            
-            timeEntries.push(newEntry);
-            localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
-            
-            // Reset form
-            document.getElementById('logDescription').value = '';
-            document.getElementById('logHours').value = '0';
-            document.getElementById('logMinutes').value = '15';
-            
-            displayTimeEntries();
-        });
-        
-        // Save task
-        document.getElementById('saveTask').addEventListener('click', () => {
-            const projectId = document.getElementById('taskProject').value;
-            const description = document.getElementById('taskDescription').value;
-            
-            if (!projectId || !description) {
-                alert('Please fill in all required fields');
-                return;
-            }
-            
-            const newTask = {
-                id: Date.now(),
-                projectId: projectId,
-                description: description,
-                dueDate: document.getElementById('taskDate').value,
-                completed: false
-            };
-            
-            futureTasks.push(newTask);
-            localStorage.setItem('futureTasks', JSON.stringify(futureTasks));
-            
-            // Reset form
-            document.getElementById('taskDescription').value = '';
-            
-            displayTasks();
-        });
-        
-        // Save project
-        document.getElementById('saveProject').addEventListener('click', () => {
-            const name = document.getElementById('projectName').value;
-            
-            if (!name) {
-                alert('Please enter a project name');
-                return;
-            }
-            
-            const newProject = {
-                id: Date.now(),
-                name: name,
-                description: document.getElementById('projectDescription').value
-            };
-            
-            projects.push(newProject);
-            localStorage.setItem('projects', JSON.stringify(projects));
-            
-            // Reset form
-            document.getElementById('projectName').value = '';
-            document.getElementById('projectDescription').value = '';
-            
-            displayProjects();
-            populateProjectDropdowns();
-        });
-        
-        // Toggle task completion
-        function toggleTaskComplete(e) {
-            const taskId = e.target.dataset.id;
-            
-            futureTasks = futureTasks.map(task => 
-                task.id.toString() === taskId 
-                ? { ...task, completed: !task.completed } 
-                : task
-            );
-            
-            localStorage.setItem('futureTasks', JSON.stringify(futureTasks));
-            displayTasks();
-        }
-        
-        // Handle delete
-        function handleDelete(e) {
-            const id = e.target.dataset.id;
-            const type = e.target.dataset.type;
-            
-            if (type === 'entry') {
-                timeEntries = timeEntries.filter(entry => entry.id.toString() !== id);
-                localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
-                displayTimeEntries();
-            } else if (type === 'task') {
-                futureTasks = futureTasks.filter(task => task.id.toString() !== id);
-                localStorage.setItem('futureTasks', JSON.stringify(futureTasks));
-                displayTasks();
-            }
-        }
-        
-        // Notification functionality
-        notificationBtn.addEventListener('click', () => {
-            if ('Notification' in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        notificationBtn.style.display = 'none';
-                        setupHourlyReminders();
-                    }
-                });
-            } else {
-                alert('Your browser does not support notifications');
-            }
-        });
-        
-        function setupHourlyReminders() {
-            // Check if notifications are already granted
-            if ('Notification' in window && Notification.permission === 'granted') {
-                notificationBtn.style.display = 'none';
-                
-                // Set up hourly check
-                setInterval(() => {
-                    const now = new Date();
-                    if (now.getMinutes() === 0) {
-                        new Notification('Time Tracker Reminder', {
-                            body: `It's ${now.getHours()}:00. Remember to log your time!`,
-                            icon: '/api/placeholder/64/64'
-                        });
-                    }
-                }, 60000); // Check every minute
-            }
-        }
-        
-        // Initialize the app
-        function init() {
-            populateProjectDropdowns();
-            displayTimeEntries();
-            displayTasks();
-            displayProjects();
-            setupHourlyReminders();
-        }
-        
-        // Start the app
-        init();
-    </script>
+    <h2>Time Entries</h2>
+    <div id="timeEntries">
+        <select id="logProject">
+            <option value="">Select Project</option>
+        </select>
+        <input type="date" id="logDate">
+        <input type="text" id="logDescription" placeholder="Description">
+        <input type="number" id="logHours" placeholder="Hours" value="0">
+        <input type="number" id="logMinutes" placeholder="Minutes" value="15">
+        <button id="saveTimeEntry">Save Time Entry</button>
+        <div id="timeEntriesList"></div>
+    </div>
+
+    <h2>Tasks</h2>
+    <div id="tasks">
+        <select id="taskProject">
+            <option value="">Select Project</option>
+        </select>
+        <input type="text" id="taskDescription" placeholder="Task Description">
+        <input type="date" id="taskDate">
+        <button id="saveTask">Save Task</button>
+        <div id="tasksList"></div>
+    </div>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "firebase/app";
-        import { getDatabase, ref, push, set, onValue, remove } from "firebase/database"; // For Realtime Database
-        import { getAnalytics } from "firebase/analytics";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Your web app's Firebase configuration
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
         apiKey: "AIzaSyBdi2flZnMPhwncC5BxKFGcLwYbQ2paUSw",
@@ -629,50 +110,361 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
 
-        // code to interact with Firebase.
-        // ... (Firebase initialization as shown above) ...
+        // **Important:** Replace 'hblatz' with a dynamic user ID.  
+        // You'll need Firebase Authentication to handle user logins and get the correct ID.
+        const userId = 'hblatz'; // Placeholder!  
 
-        // Reference to the 'timeEntries' node in your database
-        const timeEntriesRef = ref(database, 'users/' + /* User ID (you might need Firebase Authentication later) */ 'hblatz/timeEntries');
-
-        // Function to save a new time entry
-        function saveTimeEntry(task, startTime, endTime, duration) {
-        push(timeEntriesRef, {
-            task: task,
-            startTime: startTime,
-            endTime: endTime,
-            duration: duration
-        });
+        // --- Project Functions ---
+        function saveProjectToFirebase(project) {
+            const projectsRef = ref(database, `users/${userId}/projects`);
+            return push(projectsRef, {
+                'short name': project.name, // Assuming 'name' in your form is the short name
+                'description': project.description,
+                'project code': project.projectCode // Assuming you add an input for project code
+            })
+            .then(() => {
+                console.log("Project saved to Firebase");
+                return true;
+            })
+            .catch((error) => {
+                console.error("Error saving project:", error);
+                return false;
+            });
         }
 
-        // Function to load time entries (and listen for updates)
-        function loadTimeEntries() {
-        onValue(timeEntriesRef, (snapshot) => {
-            const data = snapshot.val();
-            // Process the data to update your table in the HTML
-            if (data) {
-            // Clear existing table rows
-            // Loop through the data object (it will be an object of objects with unique keys)
-            for (const entryId in data) {
-                const entry = data[entryId];
-                // Add a new row to your table with entry.task, entry.startTime, etc.
-            }
-            } else {
-            // No data yet
-            // Display a message or clear the table
-            }
-        });
+        function getProjectsFromFirebase(callback) {
+            const projectsRef = ref(database, `users/${userId}/projects`);
+            onValue(projectsRef, (snapshot) => {
+                const data = snapshot.val();
+                const projects = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                callback(projects); // Send projects to the callback function
+            });
         }
 
-        // Call loadTimeEntries when your page loads
-        loadTimeEntries();
+        function deleteProjectFromFirebase(projectId) {
+            const projectRef = ref(database, `users/${userId}/projects/${projectId}`);
+            return remove(projectRef)
+                .then(() => console.log("Project deleted from Firebase"))
+                .catch(error => console.error("Error deleting project:", error));
+        }
 
-        // Modify your existing functions (e.g., when a new entry is added) to call saveTimeEntry()
-        // instead of updating localStorage.
+        // --- Task Functions ---
+        function saveTaskToFirebase(task) {
+            const tasksRef = ref(database, `users/${userId}/tasks`);
+            return push(tasksRef, task)
+                .then(() => console.log("Task saved to Firebase"))
+                .catch(error => console.error("Error saving task:", error));
+        }
+
+        function getTasksFromFirebase(callback) {
+            const tasksRef = ref(database, `users/${userId}/tasks`);
+            onValue(tasksRef, (snapshot) => {
+                const data = snapshot.val();
+                const tasks = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                callback(tasks);
+            });
+        }
+
+        function updateTaskInFirebase(taskId, updates) {
+            const taskRef = ref(database, `users/${userId}/tasks/${taskId}`);
+            return update(taskRef, updates)
+                .then(() => console.log("Task updated in Firebase"))
+                .catch(error => console.error("Error updating task:", error));
+        }
+
+        function deleteTaskFromFirebase(taskId) {
+            const taskRef = ref(database, `users/${userId}/tasks/${taskId}`);
+            return remove(taskRef)
+                .then(() => console.log("Task deleted from Firebase"))
+                .catch(error => console.error("Error deleting task:", error));
+        }
+
+        // --- Time Entry Functions ---
+        function saveTimeEntryToFirebase(entry) {
+            const entriesRef = ref(database, `users/${userId}/timeEntries`);
+            return push(entriesRef, entry)
+                .then(() => console.log("Time entry saved to Firebase"))
+                .catch(error => console.error("Error saving time entry:", error));
+        }
+
+        function getTimeEntriesFromFirebase(callback) {
+            const entriesRef = ref(database, `users/${userId}/timeEntries`);
+            onValue(entriesRef, (snapshot) => {
+                const data = snapshot.val();
+                const entries = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                callback(entries);
+            });
+        }
+
+        function deleteTimeEntryFromFirebase(entryId) {
+            const entryRef = ref(database, `users/${userId}/timeEntries/${entryId}`);
+            return remove(entryRef)
+                .then(() => console.log("Time entry deleted from Firebase"))
+                .catch(error => console.error("Error deleting time entry:", error));
+        }
 
 
+        // --- Replace localStorage calls with Firebase functions ---
+
+        // **Project Saving**
+        document.getElementById('saveProject').addEventListener('click', () => {
+            const shortName = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+            const projectCode = document.getElementById('projectCode').value; // Get the project code
+        
+            if (!shortName || !projectCode) {
+                alert('Please enter a project short name and code');
+                return;
+            }
+        
+            const newProject = {
+                name: shortName, // Using 'name' as the short name for now
+                description: description,
+                projectCode: projectCode
+            };
+        
+            saveProjectToFirebase(newProject)
+                .then(success => {
+                    if (success) {
+                        document.getElementById('projectName').value = '';
+                        document.getElementById('projectDescription').value = '';
+                        document.getElementById('projectCode').value = '';
+                        // No need to call displayProjects() here; onValue() will update it
+                    } else {
+                        alert("Failed to save project.");
+                    }
+                });
+        });
+
+        // **Project Display**
+        function displayProjects(projects) { // Modified to accept projects as argument
+            const container = document.getElementById('projectsList');
+            container.innerHTML = '';  // Clear existing content
+
+            if (projects.length === 0) {
+                container.innerHTML = '<p class="empty-message">No projects yet.</p>';
+                return;
+            }
+
+            projects.forEach(project => {
+                // Calculate total time for this project (adapt as needed with Firebase data)
+                // ... (Calculation logic - you might need to fetch time entries) ...
+
+                const projectCard = document.createElement('div');
+                projectCard.classList.add('project-card');
+                projectCard.innerHTML = `
+                    <h3>${project.name}</h3>
+                    <p>${project.description || ''}</p>
+                    <p>Total time: ... </p>
+                `;
+                container.appendChild(projectCard);
+            });
+            populateProjectDropdowns();
+        }
+
+        // **Initial Project Load and Updates**
+        function initProjects() {
+            getProjectsFromFirebase(displayProjects); // Fetch and display
+        }
+
+         // **Populate Project Dropdowns**
+        function populateProjectDropdowns() {
+            const projectDropdowns = document.querySelectorAll('select[id="logProject"], select[id="taskProject"]');
+            getProjectsFromFirebase(projects => {
+                projectDropdowns.forEach(dropdown => {
+                    dropdown.innerHTML = '<option value="">Select Project</option>'; // Clear existing options
+                    projects.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project.id;
+                        option.textContent = project.name;
+                        dropdown.appendChild(option);
+                    });
+                });
+            });
+        }
+
+        // **Time Entry Saving**
+        document.getElementById('saveTimeEntry').addEventListener('click', () => {
+            const projectId = document.getElementById('logProject').value;
+            if (!projectId) {
+                alert('Please select a project');
+                return;
+            }
+
+            const newEntry = {
+                date: document.getElementById('logDate').value,
+                projectId: projectId,
+                description: document.getElementById('logDescription').value,
+                hours: parseInt(document.getElementById('logHours').value),
+                minutes: parseInt(document.getElementById('logMinutes').value),
+            };
+
+            saveTimeEntryToFirebase(newEntry)
+                .then(() => {
+                    document.getElementById('logDescription').value = '';
+                    document.getElementById('logHours').value = '0';
+                    document.getElementById('logMinutes').value = '15';
+                    // No need to call displayTimeEntries(); onValue will handle it
+                });
+        });
+
+        // **Time Entry Display**
+        function displayTimeEntries(entries) {
+            const container = document.getElementById('timeEntriesList');
+            container.innerHTML = '';
+
+            if (entries.length === 0) {
+                container.innerHTML = '<p class="empty-message">No time entries yet.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Project</th>
+                        <th>Description</th>
+                        <th>Time</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = entry.date;
+                // You might need to fetch the project name based on entry.projectId
+                // For now, just display the project ID
+                row.insertCell().textContent = entry.projectId;
+                row.insertCell().textContent = entry.description;
+                row.insertCell().textContent = `${entry.hours}h ${entry.minutes}m`;
+
+                const deleteCell = row.insertCell();
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-btn');
+                deleteButton.textContent = 'Delete';
+                deleteButton.dataset.id = entry.id;
+                deleteButton.dataset.type = 'entry';
+                deleteButton.addEventListener('click', handleDelete);
+                deleteCell.appendChild(deleteButton);
+            });
+
+            container.appendChild(table);
+        }
+
+        // **Initial Time Entry Load and Updates**
+        function initTimeEntries() {
+            getTimeEntriesFromFirebase(displayTimeEntries);
+        }
+
+        // **Task Saving**
+        document.getElementById('saveTask').addEventListener('click', () => {
+            const projectId = document.getElementById('taskProject').value;
+            const description = document.getElementById('taskDescription').value;
+            if (!projectId || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const newTask = {
+                projectId: projectId,
+                description: description,
+                dueDate: document.getElementById('taskDate').value,
+                completed: false
+            };
+
+            saveTaskToFirebase(newTask)
+                .then(() => {
+                    document.getElementById('taskDescription').value = '';
+                    // No need to call displayTasks(); onValue will handle it
+                });
+        });
+
+        // **Task Display**
+        function displayTasks(tasks) {
+            const container = document.getElementById('tasksList');
+            container.innerHTML = '';
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p class="empty-message">No future tasks yet.</p>';
+                return;
+            }
+
+            tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.classList.add('task-item');
+                if (task.completed) taskItem.classList.add('completed');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.classList.add('task-checkbox');
+                checkbox.dataset.id = task.id;
+                checkbox.checked = task.completed;
+                checkbox.addEventListener('change', toggleTaskComplete);
+
+                const taskDetails = document.createElement('div');
+                taskDetails.innerHTML = `
+                    <div>${task.description}</div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        ${task.projectId} - Due: ${task.dueDate}
+                    </div>
+                `;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-btn');
+                deleteButton.dataset.id = task.id;
+                deleteButton.dataset.type = 'task';
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', handleDelete);
+
+                taskItem.appendChild(checkbox);
+                taskItem.appendChild(taskDetails);
+                taskItem.appendChild(deleteButton);
+                container.appendChild(taskItem);
+            });
+        }
+
+        // **Initial Task Load and Updates**
+        function initTasks() {
+            getTasksFromFirebase(displayTasks);
+        }
+
+        // **Task Completion Toggle**
+        function toggleTaskComplete(e) {
+            const taskId = e.target.dataset.id;
+            const completed = e.target.checked;
+            updateTaskInFirebase(taskId, { completed: completed });
+        }
+
+        // **General Delete Function**
+        function handleDelete(e) {
+            const id = e.target.dataset.id;
+            const type = e.target.dataset.type;
+
+            if (type === 'entry') {
+                deleteTimeEntryFromFirebase(id);
+            } else if (type === 'task') {
+                deleteTaskFromFirebase(id);
+            } else if (type === 'project') {
+                deleteProjectFromFirebase(id);
+            }
+        }
+
+        // **Initialization**
+        function init() {
+            initProjects();
+            initTimeEntries();
+            initTasks();
+            populateProjectDropdowns();
+        }
+
+        init();
     </script>
+
 </body>
 </html>
