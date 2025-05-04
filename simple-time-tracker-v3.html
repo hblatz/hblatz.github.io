@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Time Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 16px;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+        }
+        .tab.active {
+            border-bottom: 2px solid #4a89dc;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .card {
+            background: #f7f7f7;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #4a89dc;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #3b78cc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .task-item.completed {
+            background-color: #f9f9f9;
+            text-decoration: line-through;
+            color: #888;
+        }
+        .task-checkbox {
+            margin-right: 12px;
+            width: auto;
+        }
+        .project-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .delete-btn {
+            background: none;
+            color: #ff4d4d;
+            padding: 4px 8px;
+            float: right;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .reminder-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 600px) {
+            .field-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Time Tracker</h1>
+    
+    <button id="enableNotifications" class="reminder-btn">🔔 Enable Hourly Reminders</button>
+    
+    <div class="tabs">
+        <button class="tab active" data-tab="logTime">⏱️ Log Time</button>
+        <button class="tab" data-tab="tasks">✅ Tasks</button>
+        <button class="tab" data-tab="projects">📁 Projects</button>
+    </div>
+    
+    <!-- Log Time Tab -->
+    <div id="logTime" class="tab-content active">
+        <div class="card">
+            <h2>Log Time</h2>
+            <div class="field-grid">
+                <div class="form-group">
+                    <label for="logDate">Date</label>
+                    <input type="date" id="logDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="logProject">Project</label>
+                    <select id="logProject" required>
+                        <option value="">Select a project</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="logDescription">Description</label>
+                    <input type="text" id="logDescription" placeholder="What did you work on?">
+                </div>
+                <div class="form-group">
+                    <label for="logHours">Hours</label>
+                    <select id="logHours"></select>
+                </div>
+                <div class="form-group">
+                    <label for="logMinutes">Minutes</label>
+                    <select id="logMinutes">
+                        <option value="0">0</option>
+                        <option value="15" selected>15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            <button id="saveTimeEntry">Log Time</button>
+        </div>
+        
+        <h2>Recent Time Entries</h2>
+        <div id="timeEntriesList">
+            <p class="empty-message">No time entries yet.</p>
+        </div>
+    </div>
+    
+    <!-- Tasks Tab -->
+    <div id="tasks" class="tab-content">
+        <div class="card">
+            <h2>Add Future Task</h2>
+            <div class="field-grid">
+                <div class="form-group">
+                    <label for="taskProject">Project</label>
+                    <select id="taskProject" required>
+                        <option value="">Select a project</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskDate">Due Date</label>
+                    <input type="date" id="taskDate">
+                </div>
+                <div class="form-group full-width">
+                    <label for="taskDescription">Task Description</label>
+                    <input type="text" id="taskDescription" placeholder="What needs to be done?" required>
+                </div>
+            </div>
+            <button id="saveTask">Add Task</button>
+        </div>
+        
+        <h2>Future Tasks</h2>
+        <div id="tasksList">
+            <p class="empty-message">No future tasks yet.</p>
+        </div>
+    </div>
+    
+    <!-- Projects Tab -->
+    <div id="projects" class="tab-content">
+        <div class="card">
+            <h2>Add New Project</h2>
+            <div class="form-group">
+                <label for="projectName">Project Name</label>
+                <input type="text" id="projectName" placeholder="Project name" required>
+            </div>
+            <div class="form-group">
+                <label for="projectDescription">Description</label>
+                <textarea id="projectDescription" rows="2" placeholder="Project description"></textarea>
+            </div>
+            <button id="saveProject">Add Project</button>
+        </div>
+        
+        <h2>Projects</h2>
+        <div id="projectsList" class="grid">
+            <p class="empty-message">No projects yet.</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data structures
+        let projects = JSON.parse(localStorage.getItem('projects')) || [
+            { id: 1, name: 'Project A', description: 'Description for Project A' },
+            { id: 2, name: 'Project B', description: 'Description for Project B' },
+            { id: 3, name: 'Project C', description: 'Description for Project C' },
+        ];
+        let timeEntries = JSON.parse(localStorage.getItem('timeEntries')) || [];
+        let futureTasks = JSON.parse(localStorage.getItem('futureTasks')) || [];
+        
+        // DOM elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const notificationBtn = document.getElementById('enableNotifications');
+        
+        // Tab functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to current tab and content
+                tab.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Populate hours dropdown
+        const hoursDropdown = document.getElementById('logHours');
+        for (let i = 0; i < 24; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            if (i === 0) option.selected = true;
+            hoursDropdown.appendChild(option);
+        }
+        
+        // Set today's date as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('logDate').value = today;
+        document.getElementById('taskDate').value = today;
+        
+        // Populate project dropdowns
+        function populateProjectDropdowns() {
+            const projectSelects = [
+                document.getElementById('logProject'),
+                document.getElementById('taskProject')
+            ];
+            
+            projectSelects.forEach(select => {
+                // Clear existing options except the first one
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                // Add project options
+                projects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.id;
+                    option.textContent = project.name;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        // Display time entries
+        function displayTimeEntries() {
+            const container = document.getElementById('timeEntriesList');
+            
+            if (timeEntries.length === 0) {
+                container.innerHTML = '<p class="empty-message">No time entries yet.</p>';
+                return;
+            }
+            
+            // Sort entries by date (newest first)
+            const sortedEntries = [...timeEntries].sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
+            
+            // Create table
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Project</th>
+                            <th>Description</th>
+                            <th>Time</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            sortedEntries.forEach(entry => {
+                const project = projects.find(p => p.id.toString() === entry.projectId.toString());
+                html += `
+                    <tr>
+                        <td>${entry.date}</td>
+                        <td>${project ? project.name : 'Unknown'}</td>
+                        <td>${entry.description}</td>
+                        <td>${entry.hours}h ${entry.minutes}m</td>
+                        <td>
+                            <button class="delete-btn" data-id="${entry.id}" data-type="entry">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+            
+            // Add event listeners for delete buttons
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', handleDelete);
+            });
+        }
+        
+        // Display tasks
+        function displayTasks() {
+            const container = document.getElementById('tasksList');
+            
+            if (futureTasks.length === 0) {
+                container.innerHTML = '<p class="empty-message">No future tasks yet.</p>';
+                return;
+            }
+            
+            // Sort tasks by due date
+            const sortedTasks = [...futureTasks].sort((a, b) => 
+                new Date(a.dueDate) - new Date(b.dueDate)
+            );
+            
+            let html = '';
+            
+            sortedTasks.forEach(task => {
+                const project = projects.find(p => p.id.toString() === task.projectId.toString());
+                html += `
+                    <div class="task-item ${task.completed ? 'completed' : ''}">
+                        <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
+                        <div>
+                            <div>${task.description}</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                ${project ? project.name : 'Unknown'} - Due: ${task.dueDate}
+                            </div>
+                        </div>
+                        <button class="delete-btn" data-id="${task.id}" data-type="task">Delete</button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Add event listeners
+            container.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', toggleTaskComplete);
+            });
+            
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', handleDelete);
+            });
+        }
+        
+        // Display projects
+        function displayProjects() {
+            const container = document.getElementById('projectsList');
+            
+            if (projects.length === 0) {
+                container.innerHTML = '<p class="empty-message">No projects yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            projects.forEach(project => {
+                // Calculate total time for this project
+                const projectEntries = timeEntries.filter(
+                    entry => entry.projectId.toString() === project.id.toString()
+                );
+                const totalMinutes = projectEntries.reduce(
+                    (sum, entry) => sum + ((entry.hours * 60) + entry.minutes), 0
+                );
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                
+                html += `
+                    <div class="project-card">
+                        <h3>${project.name}</h3>
+                        <p>${project.description}</p>
+                        <p><strong>Total time:</strong> ${hours}h ${minutes}m</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Save time entry
+        document.getElementById('saveTimeEntry').addEventListener('click', () => {
+            const projectId = document.getElementById('logProject').value;
+            if (!projectId) {
+                alert('Please select a project');
+                return;
+            }
+            
+            const newEntry = {
+                id: Date.now(),
+                date: document.getElementById('logDate').value,
+                projectId: projectId,
+                description: document.getElementById('logDescription').value,
+                hours: parseInt(document.getElementById('logHours').value),
+                minutes: parseInt(document.getElementById('logMinutes').value),
+            };
+            
+            timeEntries.push(newEntry);
+            localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+            
+            // Reset form
+            document.getElementById('logDescription').value = '';
+            document.getElementById('logHours').value = '0';
+            document.getElementById('logMinutes').value = '15';
+            
+            displayTimeEntries();
+        });
+        
+        // Save task
+        document.getElementById('saveTask').addEventListener('click', () => {
+            const projectId = document.getElementById('taskProject').value;
+            const description = document.getElementById('taskDescription').value;
+            
+            if (!projectId || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const newTask = {
+                id: Date.now(),
+                projectId: projectId,
+                description: description,
+                dueDate: document.getElementById('taskDate').value,
+                completed: false
+            };
+            
+            futureTasks.push(newTask);
+            localStorage.setItem('futureTasks', JSON.stringify(futureTasks));
+            
+            // Reset form
+            document.getElementById('taskDescription').value = '';
+            
+            displayTasks();
+        });
+        
+        // Save project
+        document.getElementById('saveProject').addEventListener('click', () => {
+            const name = document.getElementById('projectName').value;
+            
+            if (!name) {
+                alert('Please enter a project name');
+                return;
+            }
+            
+            const newProject = {
+                id: Date.now(),
+                name: name,
+                description: document.getElementById('projectDescription').value
+            };
+            
+            projects.push(newProject);
+            localStorage.setItem('projects', JSON.stringify(projects));
+            
+            // Reset form
+            document.getElementById('projectName').value = '';
+            document.getElementById('projectDescription').value = '';
+            
+            displayProjects();
+            populateProjectDropdowns();
+        });
+        
+        // Toggle task completion
+        function toggleTaskComplete(e) {
+            const taskId = e.target.dataset.id;
+            
+            futureTasks = futureTasks.map(task => 
+                task.id.toString() === taskId 
+                ? { ...task, completed: !task.completed } 
+                : task
+            );
+            
+            localStorage.setItem('futureTasks', JSON.stringify(futureTasks));
+            displayTasks();
+        }
+        
+        // Handle delete
+        function handleDelete(e) {
+            const id = e.target.dataset.id;
+            const type = e.target.dataset.type;
+            
+            if (type === 'entry') {
+                timeEntries = timeEntries.filter(entry => entry.id.toString() !== id);
+                localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+                displayTimeEntries();
+            } else if (type === 'task') {
+                futureTasks = futureTasks.filter(task => task.id.toString() !== id);
+                localStorage.setItem('futureTasks', JSON.stringify(futureTasks));
+                displayTasks();
+            }
+        }
+        
+        // Notification functionality
+        notificationBtn.addEventListener('click', () => {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationBtn.style.display = 'none';
+                        setupHourlyReminders();
+                    }
+                });
+            } else {
+                alert('Your browser does not support notifications');
+            }
+        });
+        
+        function setupHourlyReminders() {
+            // Check if notifications are already granted
+            if ('Notification' in window && Notification.permission === 'granted') {
+                notificationBtn.style.display = 'none';
+                
+                // Set up hourly check
+                setInterval(() => {
+                    const now = new Date();
+                    if (now.getMinutes() === 0) {
+                        new Notification('Time Tracker Reminder', {
+                            body: `It's ${now.getHours()}:00. Remember to log your time!`,
+                            icon: '/api/placeholder/64/64'
+                        });
+                    }
+                }, 60000); // Check every minute
+            }
+        }
+        
+        // Initialize the app
+        function init() {
+            populateProjectDropdowns();
+            displayTimeEntries();
+            displayTasks();
+            displayProjects();
+            setupHourlyReminders();
+        }
+        
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
