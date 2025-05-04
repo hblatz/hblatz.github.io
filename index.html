@@ -606,5 +606,30 @@
         // Start the app
         init();
     </script>
+    
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "firebase/app";
+        import { getDatabase, ref, push, set, onValue, remove } from "firebase/database"; // For Realtime Database
+        import { getAnalytics } from "firebase/analytics";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+        apiKey: "AIzaSyBdi2flZnMPhwncC5BxKFGcLwYbQ2paUSw",
+        authDomain: "simple-time-tracker-c93cd.firebaseapp.com",
+        projectId: "simple-time-tracker-c93cd",
+        storageBucket: "simple-time-tracker-c93cd.firebasestorage.app",
+        messagingSenderId: "78833401902",
+        appId: "1:78833401902:web:dfa3e558a57699bc221fbf",
+        measurementId: "G-8148XMVGBF"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>
